@@ -497,9 +497,12 @@ func (qc *QueueClient) preSendQueueMessage(msg *pb.QueueMessage) *pb.SendQueueMe
 		}
 	}
 
-	if msg.Policy.ExpirationSeconds > 0 {
-		msg.Attributes.ExpirationAt = sendTime.Add(time.Duration(msg.Policy.ExpirationSeconds+msg.Policy.DelaySeconds) * time.Second).UnixNano()
-	}
+	msg.Attributes.ExpirationAt = qc.policyCfg.RetentionPolicy().ExpirationAt(
+		sendTime,
+		msg.Channel,
+		msg.Policy.ExpirationSeconds,
+		msg.Policy.DelaySeconds,
+	)
 	if msg.Policy.DelaySeconds > 0 {
 		msg.Attributes.DelayedTo = sendTime.Add(time.Duration(msg.Policy.DelaySeconds) * time.Second).UnixNano()
 	}
@@ -528,6 +531,7 @@ func (qc *QueueClient) preSendQueueMessage(msg *pb.QueueMessage) *pb.SendQueueMe
 		result.Error = err.Error()
 		return result
 	}
+	result.ExpirationAt = msg.Attributes.ExpirationAt
 	return result
 }
 

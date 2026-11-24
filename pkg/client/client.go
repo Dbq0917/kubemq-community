@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/kubemq-io/kubemq-community/pkg/entities"
+	"github.com/kubemq-io/kubemq-community/pkg/retention"
 	pb "github.com/kubemq-io/protobuf/go"
 	"github.com/nats-io/nuid"
 
@@ -23,7 +24,7 @@ const (
 	prefixEventsStore = "_EVENTS_STORE_."
 	prefixCommands    = "_COMMANDS_."
 	prefixQueries     = "_QUERIES_."
-	prefixQueues      = "_QUEUES_."
+	prefixQueues      = retention.QueueChannelPrefix
 	delayQueueChannel = "_QUEUE_DELAY_"
 )
 const (

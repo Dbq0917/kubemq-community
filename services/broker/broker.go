@@ -83,6 +83,7 @@ func (s *Service) getBrokerOptions(appConfig *config.Config) (natsOpts *natsd.Op
 	snatsOpts.MaxMsgs = appConfig.Store.MaxMessages
 	snatsOpts.MaxInactivity = time.Duration(appConfig.Store.MaxPurgeInactive) * time.Minute
 	snatsOpts.MaxSubscriptions = appConfig.Store.MaxSubscribers
+	applyTopicRetentionLimits(snatsOpts, appConfig.Queue)
 	snatsOpts.StoreType = stores.TypeFile
 	snatsOpts.FilestoreDir = filepath.Join(appConfig.Store.StorePath, appConfig.Host)
 	snatsOpts.FileStoreOpts = getFileStoreOptions(appConfig.Broker)

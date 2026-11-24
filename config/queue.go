@@ -1,16 +1,22 @@
 package config
 
+import (
+	"github.com/kubemq-io/kubemq-community/pkg/retention"
+)
+
 type QueueConfig struct {
-	MaxNumberOfMessages       int32 `json:"maxNumberOfMessages"`
-	MaxWaitTimeoutSeconds     int32 `json:"maxWaitTimeoutSeconds"`
-	MaxExpirationSeconds      int32 `json:"maxExpirationSeconds"`
-	MaxDelaySeconds           int32 `json:"maxDelaySeconds"`
-	MaxReceiveCount           int32 `json:"maxReceiveCount"`
-	MaxVisibilitySeconds      int32 `json:"maxVisibilitySeconds"`
-	DefaultVisibilitySeconds  int32 `json:"defaultVisibilitySeconds"`
-	DefaultWaitTimeoutSeconds int32 `json:"defaultWaitTimeoutSeconds"`
-	MaxInflight               int32 `json:"maxInflight"`
-	PubAckWaitSeconds         int32 `json:"pubAckWaitSeconds"`
+	MaxNumberOfMessages       int32            `json:"maxNumberOfMessages"`
+	MaxWaitTimeoutSeconds     int32            `json:"maxWaitTimeoutSeconds"`
+	MaxExpirationSeconds      int32            `json:"maxExpirationSeconds"`
+	MaxDelaySeconds           int32            `json:"maxDelaySeconds"`
+	MaxReceiveCount           int32            `json:"maxReceiveCount"`
+	MaxVisibilitySeconds      int32            `json:"maxVisibilitySeconds"`
+	DefaultVisibilitySeconds  int32            `json:"defaultVisibilitySeconds"`
+	DefaultWaitTimeoutSeconds int32            `json:"defaultWaitTimeoutSeconds"`
+	MaxInflight               int32            `json:"maxInflight"`
+	PubAckWaitSeconds         int32            `json:"pubAckWaitSeconds"`
+	DefaultRetentionSeconds   int32            `json:"defaultRetentionSeconds,omitempty"`
+	TopicRetentionSeconds     map[string]int32 `json:"topicRetentionSeconds,omitempty"`
 }
 
 func defaultQueueConfig() *QueueConfig {
@@ -25,6 +31,7 @@ func defaultQueueConfig() *QueueConfig {
 		"Queue.DefaultWaitTimeoutSeconds",
 		"Queue.MaxInflight",
 		"Queue.PubAckWaitSeconds",
+		"Queue.DefaultRetentionSeconds",
 	)
 	return &QueueConfig{
 		MaxNumberOfMessages:       1024,
@@ -37,6 +44,16 @@ func defaultQueueConfig() *QueueConfig {
 		DefaultWaitTimeoutSeconds: 1,
 		MaxInflight:               2048,
 		PubAckWaitSeconds:         60,
+	}
+}
+
+func (q *QueueConfig) RetentionPolicy() retention.Policy {
+	if q == nil {
+		return retention.Policy{}
+	}
+	return retention.Policy{
+		DefaultSeconds: q.DefaultRetentionSeconds,
+		TopicSeconds:   q.TopicRetentionSeconds,
 	}
 }
 
@@ -73,6 +90,17 @@ func (q *QueueConfig) Validate() error {
 	}
 	if q.PubAckWaitSeconds < 0 {
 		return NewConfigurationError("bad queue configuration: PubAckWaitSeconds cannot be negative")
+	}
+	if q.DefaultRetentionSeconds < 0 {
+		return NewConfigurationError("bad queue configuration: DefaultRetentionSeconds cannot be negative")
+	}
+	for topic, seconds := range q.TopicRetentionSeconds {
+		if topic == "" {
+			return NewConfigurationError("bad queue configuration: topic retention name cannot be empty")
+		}
+		if seconds < 0 {
+			return NewConfigurationError("bad queue configuration: TopicRetentionSeconds cannot be negative")
+		}
 	}
 
 	return nil
