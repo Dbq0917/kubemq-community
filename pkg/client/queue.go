@@ -1364,6 +1364,9 @@ func unmarshalToQueueMessage(data []byte, timestamp int64, seq uint64) (*pb.Queu
 	if err != nil {
 		return nil, err
 	}
+	if msg.Attributes == nil {
+		msg.Attributes = &pb.QueueMessageAttributes{}
+	}
 	msg.Attributes.Timestamp = timestamp
 	msg.Attributes.Sequence = seq
 	return msg, nil
