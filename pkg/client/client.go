@@ -24,6 +24,7 @@ const (
 	prefixCommands    = "_COMMANDS_."
 	prefixQueries     = "_QUERIES_."
 	prefixQueues      = "_QUEUES_."
+	prefixBroadcast   = "_BROADCAST_."
 	delayQueueChannel = "_QUEUE_DELAY_"
 )
 const (

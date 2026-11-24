@@ -7,10 +7,12 @@ import (
 	"github.com/kubemq-io/kubemq-community/config"
 	"github.com/kubemq-io/kubemq-community/pkg/cmap"
 	"go.uber.org/atomic"
+	"sync"
 	"time"
 )
 
 type QueuePoolClient struct {
+	mu          sync.Mutex
 	Channel     string
 	Client      *QueueClient
 	LastConnect time.Time
@@ -36,11 +38,15 @@ func (qpc *QueuePoolClient) GetClient() *QueueClient {
 }
 
 func (qpc *QueuePoolClient) ReleaseClient() {
+	qpc.mu.Lock()
+	defer qpc.mu.Unlock()
 	qpc.LastConnect = time.Now()
 	qpc.usedCounter.Dec()
 }
 
 func (qpc *QueuePoolClient) InUsed(d time.Duration) bool {
+	qpc.mu.Lock()
+	defer qpc.mu.Unlock()
 	if qpc.usedCounter.Load() == 0 && time.Since(qpc.LastConnect) > d {
 		return false
 	}

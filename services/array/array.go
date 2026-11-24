@@ -49,6 +49,7 @@ type Array struct {
 	queueDownstreamCounter     *atomic.Uint64
 	queueUpstreamClientsPool   *client.QueuePool
 	queueUpstreamCounter       *atomic.Uint64
+	broadcastGroups            *broadcastRegistry
 }
 
 func Start(ctx context.Context, appConfig *config.Config) (*Array, error) {
@@ -77,6 +78,7 @@ func Start(ctx context.Context, appConfig *config.Config) (*Array, error) {
 			KillAfter: 1 * time.Minute,
 			MaxUsage:  10,
 		}, appConfig),
+		broadcastGroups: newBroadcastRegistry(),
 	}
 
 	na.context, na.cancelFunc = context.WithCancel(ctx)

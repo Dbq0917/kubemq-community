@@ -40,6 +40,8 @@ var (
 	ErrInvalidWaitTimeout           = errors.New("Error 136: invalid wait timeout, value cannot be negative or exceed max wait timeout seconds setting in kubemq config")
 	ErrNoActiveMessageToReject      = errors.New("Error 137: no active message to reject")
 	ErrNoNewMessageQueue            = errors.New("Error 138: no new message in queue, wait time expired")
+	ErrInvalidBroadcastGroup        = errors.New("Error 139: invalid broadcast group value, cannot be empty, contain white spaces, wildcards or end with dot")
+	ErrBroadcastGroupConflict       = errors.New("Error 140: broadcast group is already registered with a different channel")
 )
 
 //From Connectors

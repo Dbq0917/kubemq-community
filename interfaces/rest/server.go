@@ -128,6 +128,17 @@ func NewServer(svc *services.SystemServices, appConfigs ...*config.Config) (*Ser
 		return s.handlerReceiveQueueMessages(c)
 	})
 
+	// broadcast (multi-group fan-out with an independent offset per group)
+	e.POST("/broadcast/group", func(c echo.Context) error {
+		return s.handlerRegisterBroadcastGroup(c)
+	})
+	e.POST("/broadcast/send", func(c echo.Context) error {
+		return s.handlerSendBroadcastMessage(c)
+	})
+	e.POST("/broadcast/receive", func(c echo.Context) error {
+		return s.handlerReceiveBroadcastMessages(c)
+	})
+
 	// route to get message
 	e.GET("/queue/stream", func(c echo.Context) error {
 		return s.handlerStreamQueueMessages(c)
